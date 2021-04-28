@@ -35,11 +35,17 @@ def buildKMedoids(distances,medoid):
     newArray = [sum([n[1] for n in subArr]) for subArr in arrayFiles]
 
     newArray = [(m,n)  for m, n in zip([[n[0] for n in subarray] for subarray in secArray],newArray)]
-  return newArray, arrayFiles
+  limit = float('inf')
+  j = 0
+  for i, each in enumerate(newArray):
+    # print(each)
+    if limit > each[1]:
+      limit = each[1]
+      j = i
+  return newArray[j], arrayFiles
 
 
-with open("vectors.txt") as f:
-    lines = [line.rstrip().split(" ",1) for line in f]
+with open("vectors.txt") as f: lines = [line.rstrip().split(" ",1) for line in f]
 files = {value[0]:(list(map(float, value[1].split()))) for value in lines}
 
 input_files = []
@@ -47,10 +53,22 @@ T, N, K = map(int, input().split())
 for n in range(N):
   filename = input()
   input_files.append((filename,files.get(filename)))
+input_files.sort()
 if T ==1:
-  MatrixD = printMedoid(sorted(input_files))
+  MatrixD = printMedoid(input_files)
   print(sorted([(m[0],sum(m[1])) for m in MatrixD], key=lambda x: x[1])[0][0])
 if T ==2:
-  MatrixD = printMedoid(sorted(input_files))
+  MatrixD = printMedoid(input_files)
+  values, _ = buildKMedoids(MatrixD, sorted([(m[0],sum(m[1])) for m in MatrixD], key=lambda x: x[1])[0][0])
+  [[print(n) for n in sorted(subarray)] for subarray in values[0:1]]
+if T == 3:
+  MatrixD = printMedoid(input_files)
   values, clusters = buildKMedoids(MatrixD, sorted([(m[0],sum(m[1])) for m in MatrixD], key=lambda x: x[1])[0][0])
-  [[print(n) for n in sorted(subarray)] for subarray in sorted(values, key=lambda x: x[1])[0][0:1]]
+  clusters = [[medoid[0] for medoid in cluster] for cluster in  clusters if set([medoid[0] for medoid in cluster]) == set(values[0])]
+  filenames = [n[0] for n in input_files]
+  points = {n:[] for n in clusters[0]}
+  for each, file in zip(clusters[0], filenames):
+    points[each].append(file)
+  for each, el in zip(points,points.values()):
+    print(each)
+    [print(" ", value) for  value in el if value != each]
