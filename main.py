@@ -32,9 +32,7 @@ def buildKMedoids(distances,medoid):
       array.append([(n[0], minimum) for n in subset if n[1][k] == minimum])
     array = [item for sublist in array for item in sublist]
     arrayFiles.append(array)
-    newArray = [sum([n[1] for n in subArr]) for subArr in arrayFiles]
-
-    newArray = [(m,n)  for m, n in zip([[n[0] for n in subarray] for subarray in secArray],newArray)]
+    newArray = [(m,n)  for m, n in zip([[n[0] for n in subarray] for subarray in secArray],[sum([n[1] for n in subArr]) for subArr in arrayFiles])]
   limit = float('inf')
   j = 0
   for i, each in enumerate(newArray):
