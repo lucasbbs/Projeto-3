@@ -19,24 +19,21 @@ def buildKMedoids(distances, medoid):
     distances = [n for n in distances if n[0] != medoid]
 
     arr = list(itertools.combinations(distances, K-1))
-    secArray = []
-    for n in arr:
-        n = list(n)
-        n.extend(initialMedoid)
-        secArray.append(n)
     limit = float('inf')
-    for subset in secArray:
-        array = []
+    for n in arr:
+        tupl = n + tuple(initialMedoid)
+        amostra = []
+        soma = 0
         for k in range(N):
-            minimum = min([(n[1][k]) for n in subset])
-            array.extend([(n[0], minimum)
-                         for n in subset if n[1][k] == minimum])
-        soma = sum([n[1] for n in array])
+            minimum = min([(n[1][k]) for n in tupl])
+            soma += minimum
+            amostra.extend([(n[0], minimum)
+                           for n in tupl if n[1][k] == minimum])
         if limit > soma:
             limit = soma
-            chosenCluster = subset
-            arrayChosen = array
-    return tuple(([n[0] for n in chosenCluster], soma)), [n[0] for n in arrayChosen]
+            clustersEscolhidos = tupl
+            amostraEscolhida = amostra
+    return tuple(([n[0] for n in clustersEscolhidos], soma)), [n[0] for n in amostraEscolhida]
 
 
 with open("vectors.txt") as f:
@@ -58,7 +55,7 @@ if T == 2:
     values, _ = buildKMedoids(MatrixD, sorted(
         [(m[0], sum(m[1])) for m in MatrixD], key=lambda x: x[1])[0][0])
 
-    [[print(n) for n in subarray] for subarray in values[0:1]]
+    [[print(n) for n in sorted(subarray)] for subarray in values[0:1]]
 if T == 3:
     MatrixD = printMedoid(input_files)
     values, clusters = buildKMedoids(MatrixD, sorted(
