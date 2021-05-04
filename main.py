@@ -1,6 +1,3 @@
-import itertools
-
-
 def printMedoid(files):
     arr = [(i[0], i[1]) for i in files]
     results = []
@@ -15,25 +12,37 @@ def printMedoid(files):
 
 
 def buildKMedoids(distances, medoid):
-    initialMedoid = [n for n in distances if n[0] == medoid]
-    distances = [n for n in distances if n[0] != medoid]
 
-    arr = list(itertools.combinations(distances, K-1))
-    limit = float('inf')
-    for n in arr:
-        tupl = n + tuple(initialMedoid)
-        amostra = []
-        soma = 0
-        for k in range(N):
-            minimum = min([(n[1][k]) for n in tupl])
-            soma += minimum
-            amostra.extend([(n[0], minimum)
-                           for n in tupl if n[1][k] == minimum])
-        if limit > soma:
-            limit = soma
-            clustersEscolhidos = tupl
-            amostraEscolhida = amostra
-    return tuple(([n[0] for n in clustersEscolhidos], soma)), [n[0] for n in amostraEscolhida]
+    medoids = [i for i, n in enumerate(distances) if n[0] == medoid]
+    unselected = [i for i, n in enumerate(distances) if n[0] != medoid]
+    for k in range(K-1):
+        Cij, ganhos = 0, []
+        for i in unselected:
+            Cij = 0
+            for j in unselected:
+                Dj, lista = 0, []
+                if j != i:
+                    for l in medoids:
+                        lista.append(distances[j][1][l])
+                    Dj = min(lista)
+                    dij = distances[i][1][j]
+                    Cij += Dj - dij if Dj > dij else 0
+            ganhos.append((Cij, i))
+        novo_medoid = sorted(ganhos, key=lambda x: x[0], reverse=True)[0]
+        medoids.append(novo_medoid[1])
+        unselected.remove(novo_medoid[1])
+    return medoids, unselected
+
+
+def buildClusters(medoids, samples):
+    samples = [(n[0], i) for i, n in enumerate(input_files) if i in samples]
+    distances = [n for i, n in enumerate(
+        MatrixD) if n[0] in [n[0] for n in samples]]
+    print(samples, distances)
+
+    distances = [[n for j, n, m in enumerate(zip(subarray, samples)) if j != m]
+                 for i, subarray in enumerate(distances) if i == 1]
+    print(distances)
 
 
 with open("vectors.txt") as f:
@@ -52,14 +61,15 @@ if T == 1:
           for m in MatrixD], key=lambda x: x[1])[0][0])
 if T == 2:
     MatrixD = printMedoid(input_files)
-    values, _ = buildKMedoids(MatrixD, sorted(
+    medoids, _ = buildKMedoids(MatrixD, sorted(
         [(m[0], sum(m[1])) for m in MatrixD], key=lambda x: x[1])[0][0])
-
-    [[print(n) for n in sorted(subarray)] for subarray in values[0:1]]
+    medoids = [n[0] for i, n in enumerate(input_files) if i in medoids]
+    [print(n) for n in sorted(medoids)]
 if T == 3:
     MatrixD = printMedoid(input_files)
-    values, clusters = buildKMedoids(MatrixD, sorted(
+    clusters, samples = buildKMedoids(MatrixD, sorted(
         [(m[0], sum(m[1])) for m in MatrixD], key=lambda x: x[1])[0][0])
+    buildClusters(clusters, samples)
     filenames = [n[0] for n in input_files]
     points = {n: [] for n in clusters}
     for each, file in zip(clusters, filenames):
