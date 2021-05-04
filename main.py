@@ -38,11 +38,11 @@ def buildClusters(medoids, samples):
     samples = [(n[0], i) for i, n in enumerate(input_files) if i in samples]
     distances = [n for i, n in enumerate(
         MatrixD) if n[0] in [n[0] for n in samples]]
-    print(samples, distances)
+    distances = [(k, sorted(vs,  key=lambda x: x[0])[0])
+                 for k, vs in [(n, [(values[m], m) for m in medoids]) for n, values in distances]]
 
-    distances = [[n for j, n, m in enumerate(zip(subarray, samples)) if j != m]
-                 for i, subarray in enumerate(distances) if i == 1]
-    print(distances)
+    distances = [(input_files[values[1]][0], x)for x, values in distances]
+    return distances
 
 
 with open("vectors.txt") as f:
@@ -69,11 +69,11 @@ if T == 3:
     MatrixD = printMedoid(input_files)
     clusters, samples = buildKMedoids(MatrixD, sorted(
         [(m[0], sum(m[1])) for m in MatrixD], key=lambda x: x[1])[0][0])
-    buildClusters(clusters, samples)
+    points = {input_files[n][0]: [] for n in clusters}
+    clusters = buildClusters(clusters, samples)
     filenames = [n[0] for n in input_files]
-    points = {n: [] for n in clusters}
-    for each, file in zip(clusters, filenames):
+    for each, file in clusters:
         points[each].append(file)
-    for each, el in zip(points, points.values()):
+    for each, el in sorted(points.items()):
         print(each)
         [print(" ", value) for value in el if value != each]
