@@ -3,13 +3,11 @@ def printMedoid(files):
     results = []
     for n in arr:
         for m in arr:
-            result = sum([abs(l - k) for l, k in zip(n[1], m[1])])
-            results.append((n[0], result))
+            results.append((n[0], sum([abs(l - k) for l, k in zip(n[1], m[1])])))
     returns = []
     for n in arr:
         returns.append((n[0], ([m[1] for m in results if m[0] == n[0]])))
     return returns
-
 
 def buildKMedoids(distances, medoid):
 
@@ -33,7 +31,6 @@ def buildKMedoids(distances, medoid):
         unselected.remove(novo_medoid[1])
     return medoids, unselected
 
-
 def buildClusters(medoids, samples):
     samples = [(n[0], i) for i, n in enumerate(input_files) if i in samples]
     distances = [n for i, n in enumerate(
@@ -43,7 +40,6 @@ def buildClusters(medoids, samples):
 
     distances = [(input_files[values[1]][0], x)for x, values in distances]
     return distances
-
 
 with open("vectors.txt") as f:
     lines = [line.rstrip().split(" ", 1) for line in f]
